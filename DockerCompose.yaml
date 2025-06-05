@@ -1,0 +1,58 @@
+
+services:
+    dashboard:
+        build:
+            context: ./Dashboard
+        volumes :
+            -   ./Dashboard:/app
+        ports:
+            - ${DashBoard_PORT}:80
+        networks:
+            - BotNetwork
+
+
+    telegrambot:
+        build:
+            context: ./TelegramBot
+        depends_on :
+            - serviceapi
+        volumes :
+            - ./TelegramBot:/app
+        ports:
+            - ${TelegramBot_PORT}:80
+        environment:
+            PublicUrl: ${PublicUrlForTelegramBot}
+        networks:
+            - BotNetwork
+    
+    serviceapi:
+        build:
+            context: ./ServiceApi
+        depends_on:
+            - db
+        environment:
+             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        volumes :
+             - ./ServiceApi:/app
+        networks:
+            - DbNetwork
+            - BotNetwork
+
+    db:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        restart: always
+        environment:
+            MSSQL_SA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            ACCEPT_EULA: Y
+            MSSQL_PID: Developer
+        networks:
+            - DbNetwork
+
+networks:
+  BotNetwork:
+  DbNetwork:
+
+
+
+                
+        

@@ -1,0 +1,6 @@
+@DokerTest_HostAddress = http://localhost:5209
+
+GET {{DokerTest_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

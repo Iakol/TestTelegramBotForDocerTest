@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    string RetriveUrl = Url.Action("GetVibeDateForUser", "Home") + $"/{Model}";
+}
+@Model long
+
+<script src="~/js//ChartGenerator.js"></script>
+
+<div class="ChartConteiner" data-url="@RetriveUrl">
+    <canvas id="MyChart">
+        
+    </canvas>
+    <div class="ChartBox" data-userid="@Model" >
+        <canvas id="VibesChart" ></canvas>
+        <div class="ButtonsContainer">
+            <button id="DayChartButton">
+                per Day chart
+            </button>
+            <button id="WeekChartButton">
+                per Week chart
+            </button>
+            <button id="MonthChartButton">
+                per Month chart
+            </button>
+
+        </div>
+    </div>
+</div>
