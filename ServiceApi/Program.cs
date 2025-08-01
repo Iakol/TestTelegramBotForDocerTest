@@ -63,7 +63,7 @@ using (var scope = app.Services.CreateScope())
     recurringJobs.AddOrUpdate(
         "job-morning",
         Job.FromExpression<VibeSevice>(s => s.SendVibeRequest(0)),
-        "0 14 * * *",
+        "0 08 * * *",
         new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
 
     recurringJobs.AddOrUpdate(
@@ -75,7 +75,7 @@ using (var scope = app.Services.CreateScope())
     recurringJobs.AddOrUpdate(
         "job-evning",
         Job.FromExpression<VibeSevice>(s => s.SendVibeRequest(2)),
-        "0 14 * * *",
+        "0 20 * * *",
         new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
 }
 

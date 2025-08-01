@@ -15,7 +15,7 @@ $(document).ready(() => {
 
     var userId = parseInt($(".ChartBox").data("userid"), 10);
 
-
+    console.log("I live");
     let i = 0;
     while (i  < 365)
     {

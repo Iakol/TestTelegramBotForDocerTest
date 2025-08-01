@@ -4,27 +4,27 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 80
+EXPOSE 443
 
 
 # Этот этап используется для сборки проекта службы
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["DokerTest/DokerTest.csproj", "DokerTest/"]
-RUN dotnet restore "./DokerTest/DokerTest.csproj"
+COPY ["TelegramBot/TelegramBot.csproj", "TelegramBot/"]
+RUN dotnet restore "./TelegramBot/TelegramBot.csproj"
 COPY . .
-WORKDIR "/src/DokerTest"
-RUN dotnet build "./DokerTest.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/TelegramBot"
+RUN dotnet build "./TelegramBot.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Этот этап используется для публикации проекта службы, который будет скопирован на последний этап
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./DokerTest.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./TelegramBot.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Этот этап используется в рабочей среде или при запуске из VS в обычном режиме (по умолчанию, когда конфигурация отладки не используется)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "DokerTest.dll"]
+ENTRYPOINT ["dotnet", "TelegramBot.dll"]

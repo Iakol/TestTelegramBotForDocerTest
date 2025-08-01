@@ -12,8 +12,8 @@ using ServiceApi.Model;
 namespace ServiceApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250528113002_SetDb")]
-    partial class SetDb
+    [Migration("20250607085003_Dbset")]
+    partial class Dbset
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

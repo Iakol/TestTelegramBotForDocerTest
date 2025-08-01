@@ -15,7 +15,7 @@ namespace TelegramBot.Controllers
         public async Task<string> SetWebHook([FromServices] ITelegramBotClient bot, CancellationToken ct)
         {
             Console.WriteLine("I Set webhook");
-            string webhookUrl = Environment.GetEnvironmentVariable("PublicUrl") + "/api/Bot";
+            string webhookUrl = Environment.GetEnvironmentVariable("PublicUrl") + "/telegram/api/Bot";
             await bot.SetWebhook(webhookUrl, allowedUpdates: [], cancellationToken: ct);
             return $"Webhook set to {webhookUrl}";
         }

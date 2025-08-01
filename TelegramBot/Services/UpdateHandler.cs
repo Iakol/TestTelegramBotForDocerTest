@@ -3,6 +3,7 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using static System.Net.WebRequestMethods;
 
 namespace TelegramBot.Services
 {
@@ -22,17 +23,8 @@ namespace TelegramBot.Services
             await (update switch
             {
                 { Message: { } message } => OnMessage(message),
-                //{ EditedMessage: { } message } => OnMessage(message),
                 { CallbackQuery: { } callbackQuery } => OnCallbackQuery(callbackQuery),
-                //{ InlineQuery: { } inlineQuery } => OnInlineQuery(inlineQuery),
-                //{ ChosenInlineResult: { } chosenInlineResult } => OnChosenInlineResult(chosenInlineResult),
-                //{ Poll: { } poll } => OnPoll(poll),
-                //{ PollAnswer: { } pollAnswer } => OnPollAnswer(pollAnswer),
-                //ChannelPost:
-                // EditedChannelPost:
-                // ShippingQuery:
-                // PreCheckoutQuery:
-                //_ => UnknownUpdateHandlerAsync(update)
+                
             });
         }
 
@@ -56,7 +48,7 @@ namespace TelegramBot.Services
         public async Task<Message> BasicReply(Message message)
         {
             JsonContent content = JsonContent.Create(message.From.Id);
-            HttpResponseMessage responce = await _httpClient.GetAsync($"http://serviceapi:80/api/ApiBot/GetUser/{message.From.Id}");
+            HttpResponseMessage responce = await _httpClient.GetAsync($"http://vibeservice/serviceapi/api/ApiBot/GetUser/{message.From.Id}");
 
             JsonElement jsonresponce = await responce.Content.ReadFromJsonAsync<JsonElement>();
 
@@ -64,17 +56,16 @@ namespace TelegramBot.Services
             bool registerFlag;
             InlineKeyboardMarkup button;
 
-            if (jsonresponce.TryGetProperty("UserId", out _))
+            if (jsonresponce.TryGetProperty("id", out _))
             {
                 Text = $"Привіт {message.From.FirstName} дякую що користуєшся ботом," +
-                    $"якщо ти хочеш відписатися від повідомлень , нажми кнопку нижче";
+                    $"Вибирай як хочеш взаємодіяти з ботом через меню";
                 registerFlag = true;
-                button = new InlineKeyboardMarkup(new[]
+                button = new InlineKeyboardButton[][]
                 {
-                    new[]{
-                        InlineKeyboardButton.WithCallbackData("Відписатися",$"UnRegisterUser_{message.From.Id}")
-                    }
-                });
+                    [("Продивитися Статисуку настроїв","GetMyVibes")],
+                    [("Відписатися",$"UnRegisterUser_{message.From.Id}")]
+                };
             }
             else 
             {
@@ -95,39 +86,76 @@ namespace TelegramBot.Services
         public async Task OnCallbackQuery(CallbackQuery callbackQuery)
         {
             await bot.AnswerCallbackQuery(callbackQuery.Id);
-            await bot.DeleteMessage(callbackQuery.Message.Chat, callbackQuery.Message.Id);
 
 
             if (callbackQuery.Data.IndexOf("Quiz") != -1)
             {
                 string[] UserReply = callbackQuery.Data.Split("_");
-                int QuestionNum = int.Parse( UserReply[1].Replace("Question",""));
+                int QuestionNum = int.Parse(UserReply[1].Replace("Question", ""));
                 await vibeBuffer.SetVibeForUser(callbackQuery.From.Id, QuestionNum, int.Parse(UserReply[2]));
 
                 await _quizService.NextQuestion(callbackQuery.Data, callbackQuery.From.Id);
             }
             else if (callbackQuery.Data.StartsWith("RegisterUser"))
             {
+                await bot.DeleteMessage(callbackQuery.Message.Chat, callbackQuery.Message.Id);
                 string[] UserReply = callbackQuery.Data.Split("_");
-
                 var User = new { Id = long.Parse(UserReply[1]), FirstName = UserReply[2], LastName = UserReply[3], Username = UserReply[4] };
+                Console.WriteLine(JsonSerializer.Serialize(User));
                 JsonContent UserContent = JsonContent.Create(User);
-                await _httpClient.PostAsync("http://serviceapi:80/api/ApiBot/RegisterUser", UserContent);
-                await bot.SendMessage(callbackQuery.From.Id, "Вас зареєстровано для опитувань");
-                await _quizService.StartQuizNowRegisteredUser(callbackQuery.From.Id);
+                HttpResponseMessage response = new HttpResponseMessage();
+                for (int attempt = 0; attempt <= 3; attempt++)
+                {
+                    response = await _httpClient.PostAsync("http://vibeservice/serviceapi/api/ApiBot/RegisterUser", UserContent);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        break;
+
+                    }
+                    else
+                    {
+                        await Task.Delay(attempt * 100);
+                    }
+
+                }
+
+                if (response.IsSuccessStatusCode)
+                {
+                    await bot.SendMessage(callbackQuery.From.Id, "Вас зареєстровано для опитувань");
+                    await _quizService.StartQuizNowRegisteredUser(callbackQuery.From.Id);
+                }
+                else
+                {
+                    await bot.SendMessage(callbackQuery.From.Id, "Вас не зареєстровано для опитувань, повторіть спробу пізніше");
+                    Console.WriteLine("Bad Request");
+
+                }
+
+            }
+            else if (callbackQuery.Data.StartsWith("GetMyVibes")) 
+            {
+                await bot.DeleteMessage(callbackQuery.Message.Chat, callbackQuery.Message.Id);
+                HttpResponseMessage responce = await _httpClient.GetAsync($"http://vibeservice/serviceapi/api/ApiBot/GetUserStats/{callbackQuery.From.Id}" );
+                string url = await responce.Content.ReadAsStringAsync();
+                url = "http://" + Environment.GetEnvironmentVariable("PublicUrl") + "/dashboard/" + url;
+                Console.WriteLine("Url is");
+                Console.WriteLine(url);
+
+                await bot.SendMessage(callbackQuery.From.Id, "Ваша статистика",replyMarkup:new InlineKeyboardMarkup(InlineKeyboardButton.WithUrl("Ваша статистика",url)));
 
             }
             else if (callbackQuery.Data.StartsWith("UnRegisterUser"))
             {
+                await bot.DeleteMessage(callbackQuery.Message.Chat, callbackQuery.Message.Id);
                 JsonContent UserContent = JsonContent.Create(callbackQuery.From.Id);
-                await _httpClient.PostAsync("http://serviceapi:80/api/ApiBot/UnRegisterUser", UserContent);
-                await bot.SendMessage(callbackQuery.From.Id, "Вас відписано від опитувань");
+                await _httpClient.PostAsync("http://vibeservice/serviceapi/api/ApiBot/UnRegisterUser", UserContent);
+                await bot.SendMessage(callbackQuery.From.Id, "Вас відписано від опитувань", replyMarkup: new ReplyKeyboardRemove());
                 await _quizService.FinishTaskForNowUnregisteredUser(callbackQuery.From.Id);
 
             }
-            else 
+            else
             {
-            
+
             }
 
         }

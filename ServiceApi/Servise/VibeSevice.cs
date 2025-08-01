@@ -4,7 +4,14 @@
     {
         public async Task SendVibeRequest(int dayPart) 
         {
-            using HttpResponseMessage responce = await _httpClient.PostAsync($"http://TelegramBot:80/api/ApiComunication/RetriveCommand", JsonContent.Create(dayPart));
+            try
+            {
+                using HttpResponseMessage responce = await _httpClient.PostAsync($"http://vibeservice/telegram/api/ApiComunication/RetriveCommand", JsonContent.Create(dayPart));
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }

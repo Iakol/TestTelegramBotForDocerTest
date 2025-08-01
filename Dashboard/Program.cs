@@ -1,9 +1,13 @@
+using Dashboard;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
+
 
 var app = builder.Build();
 
@@ -18,6 +22,7 @@ if (!app.Environment.IsDevelopment())
 
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
@@ -29,5 +34,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+
+ResoursePathHelper.Configure( app.Services.GetRequiredService<IHttpContextAccessor>());
 
 app.Run();

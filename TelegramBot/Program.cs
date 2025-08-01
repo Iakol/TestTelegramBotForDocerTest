@@ -34,6 +34,15 @@ builder.Services.AddSwaggerGen(options =>
 
 
 var app = builder.Build();
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/telegram/swagger"))
+    {
+        context.Request.Path = context.Request.Path.Value!.Replace("/telegram", "");
+    }
+    await next();
+});
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

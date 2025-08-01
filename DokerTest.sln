@@ -9,11 +9,44 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решен
 	ProjectSection(SolutionItems) = preProject
 		.env = .env
 		DockerCompose.yaml = DockerCompose.yaml
+		nginx.conf = nginx.conf
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceApi", "ServiceApi\ServiceApi.csproj", "{9956F9C4-3E6A-4FC4-A39F-9B6198951387}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBot", "TelegramBot\TelegramBot.csproj", "{891FF68C-5220-4C31-8491-71A87DE5B969}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kibernetes", "Kibernetes", "{26B0AE5D-2FFB-44F6-9FB8-8146FAFF4368}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dashboard", "Dashboard", "{9779A1D4-674D-4751-B024-266567222FBA}"
+	ProjectSection(SolutionItems) = preProject
+		Dashboard-Deployment.yaml = Dashboard-Deployment.yaml
+		Dashboard-Service.yaml = Dashboard-Service.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceApi", "ServiceApi", "{081D1B71-B0BE-445A-BA9B-2830777F2586}"
+	ProjectSection(SolutionItems) = preProject
+		ServiceApi-Deployment.yaml = ServiceApi-Deployment.yaml
+		ServiceApi-Service.yaml = ServiceApi-Service.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLServer", "SQLServer", "{F1E0226A-8BD7-43E3-901D-8871BE46E9A6}"
+	ProjectSection(SolutionItems) = preProject
+		SQLServer-Deployment.yaml = SQLServer-Deployment.yaml
+		SQLServer-Service.yaml = SQLServer-Service.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TelegamBot", "TelegamBot", "{164F5A73-5138-4203-9600-D235CF932322}"
+	ProjectSection(SolutionItems) = preProject
+		TelegamBot-Deployment.yaml = TelegamBot-Deployment.yaml
+		TelegamBot-Service.yaml = TelegamBot-Service.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ngix", "Ngix", "{39D299CA-A062-4245-BB28-C434350B2E20}"
+	ProjectSection(SolutionItems) = preProject
+		Nginx-Deployment.yaml = Nginx-Deployment.yaml
+		Nginx-Service.yaml = Nginx-Service.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,5 +69,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{26B0AE5D-2FFB-44F6-9FB8-8146FAFF4368} = {4118491D-EB39-42E4-AC9C-F1AA051C26BF}
+		{9779A1D4-674D-4751-B024-266567222FBA} = {26B0AE5D-2FFB-44F6-9FB8-8146FAFF4368}
+		{081D1B71-B0BE-445A-BA9B-2830777F2586} = {26B0AE5D-2FFB-44F6-9FB8-8146FAFF4368}
+		{F1E0226A-8BD7-43E3-901D-8871BE46E9A6} = {26B0AE5D-2FFB-44F6-9FB8-8146FAFF4368}
+		{164F5A73-5138-4203-9600-D235CF932322} = {26B0AE5D-2FFB-44F6-9FB8-8146FAFF4368}
+		{39D299CA-A062-4245-BB28-C434350B2E20} = {26B0AE5D-2FFB-44F6-9FB8-8146FAFF4368}
 	EndGlobalSection
 EndGlobal

@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ServiceApi.Model
 {
-    [PrimaryKey(nameof(Id))]
     public class UserModel
     {
         public long Id { get; set; }

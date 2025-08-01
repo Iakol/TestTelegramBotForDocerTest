@@ -27,11 +27,11 @@ namespace TelegramBot.Services
         {
             await BreakQuiz();
             QuizType = Enum.GetName<ApiComandEnum>(flag).ToString();
-            var responce = await _httpClient.GetAsync("http://serviceapi:80/api/ApiBot/GetRegisteredUsers");
+            var responce = await _httpClient.GetAsync("http://vibeservice/serviceapi/api/ApiBot/GetRegisteredUsers");
             List<long> Users = await responce.Content.ReadFromJsonAsync<List<long>>(); // ask abot Register users
             if (Users.Count != 0)
             {
-                await Task.WhenAll(Users.Select(u => NextQuestion(QuizType, u)));
+                await Task.WhenAll(Users.Select(u => NextQuestion($"{QuizType}_StartQuiz", u)));
             }
             else 
             {
@@ -41,7 +41,24 @@ namespace TelegramBot.Services
 
         public async Task StartQuizNowRegisteredUser(long id)
         {
-            await NextQuestion(QuizType, id);
+            if (QuizType.Equals("")) 
+            {
+                int time = DateTime.Now.Hour;
+                if (time >= 8 && time < 14)
+                {
+                    QuizType = "MorningQuiz";
+                }
+                else if (time >= 14 && time < 20)
+                {
+                    QuizType = "MidDayQuiz";
+
+                }
+                else
+                {
+                    QuizType = "EvningQuiz";
+                }
+            }
+            await NextQuestion( $"{QuizType}_StartQuiz", id);
         }
 
         public async Task FinishTaskForNowUnregisteredUser(long UserId) 
@@ -176,7 +193,7 @@ namespace TelegramBot.Services
                     await vibeBuffer.SetQuizMessagesForUserToDelete(UserId, mes.Id);
                     break;
                 case "Question5":
-                    await bot.SendMessage(UserId, "Ранкове Опитування Закінчено");
+                    await bot.SendMessage(UserId, "Вечірнє Опитування Закінчено");
                     await FinishQuiz(UserId);
                     break;
             }
@@ -207,12 +224,23 @@ namespace TelegramBot.Services
 
         public async Task SendVibeToApi(VibeCount vibe, long UserID) 
         {
-            JsonContent Vibe = JsonContent.Create(new { vibeLevel = (vibe.VibeLevel/vibe.Quizes), userID = UserID, id = 0 }); // get Question     
-            var responce = await _httpClient.PostAsync("http://serviceapi:80/api/ApiBot/RetriveVibeDataFromUser", Vibe);
-            if (!responce.IsSuccessStatusCode) 
+            Console.WriteLine("SendVibeToBD");
+            JsonContent Vibe = JsonContent.Create(new {  vibeLevel = (float)(vibe.VibeLevel/vibe.Quizes), userID = UserID}); // get Question     
+            for(int attempt = 0; attempt < 3; attempt++) 
             {
-                await SendVibeToApi(vibe, UserID);
+                var responce = await _httpClient.PostAsync("http://vibeservice/serviceapi/api/ApiBot/RetriveVibeDataFromUser", Vibe);
+                if (responce.IsSuccessStatusCode)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Can`t Send Vibe");
+                    Console.WriteLine(responce.StatusCode.ToString());
+
+                }
             }
+
         }
 
         public async Task DeleteMessageInBot(int messageId, long UserID)

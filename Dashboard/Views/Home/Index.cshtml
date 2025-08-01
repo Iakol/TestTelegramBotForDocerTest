@@ -1,10 +1,21 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
     string RetriveUrl = Url.Action("GetVibeDateForUser", "Home") + $"/{Model}";
+    
 }
 @Model long
 
-<script src="~/js//ChartGenerator.js"></script>
+
+
+
+
+<script src="@ResoursePathHelper.GetRightPath("js/ChartGenerator.js")"></script>
+
+
+
+
+
+
 
 <div class="ChartConteiner" data-url="@RetriveUrl">
     <canvas id="MyChart">
